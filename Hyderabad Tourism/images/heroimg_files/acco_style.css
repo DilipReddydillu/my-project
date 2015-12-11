@@ -1,0 +1,113 @@
+.black_heading {
+	background:#000000; height:20px; font-family:Arial, Helvetica, sans-serif; color:#FFFFFF; font-weight:bold; padding-top:5px;
+	margin-bottom:10px;
+}
+dl.accordion {
+	margin:0px auto;
+	width:600px;
+	border-bottom:1px dotted #666666;
+	padding:10px 0 5px 0;
+}
+/* @group Ebene 1 */
+
+dl.accordion dt {
+	position: relative;
+	font-weight: bold;
+	color:#134587;
+	cursor: pointer;
+	text-align:center;
+}
+dl.accordion dt:hover {
+}
+dl.accordion dt h3 {
+	font-family: "Trebuchet MS";
+	font-size: 13px;
+	margin:0 0 0 226px;
+	text-transform: capitalize;
+}
+dl.accordion dt b {
+	font-family: "Trebuchet MS";
+	font-size: 13px;
+	margin: 0 0px 0px 300px;
+	text-transform: capitalize;
+}
+* html dl.accordion dt {
+	cursor: hand;
+ 	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../images/up.png', sizingMethod='crop');
+	background-image: none;
+}
+dl.accordion dt.open {
+	background-image: url(../images/up2.png);
+}
+* html dl.accordion dt.open {
+ 	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../images/up.png', sizingMethod='crop');
+	background-image: none;
+}
+dl.accordion dd {
+	position: relative;
+	padding-top:15px;
+}
+dl.accordion dd dl {
+	padding-left: 0;
+	text-align: justify;
+}
+/* @group Inhalt */
+
+dl.accordion dd.sub_accordion {
+}
+dl.accordion dd.accordion_content {
+	padding: 0 10px 0 0px;
+}
+dl.accordion dd.accordion_content p {
+	padding: 5px 0 7px 0;
+}
+/* @end */
+
+/* @end */
+
+/* @group Ebene 2 */
+
+dl.accordion dd dl dt {
+	/*	padding-left: 45px;
+*/	background-color:#F1F0F0;
+	background-position: 20px 0;
+}
+dl.accordion dd dl dd.accordion_content {
+}
+/* @end */
+
+/* @group Ebene 3 */
+
+dl.accordion dd dl dd dl dt {
+	/*	padding-left: 65px;*/
+	background-color: #509bba;
+	background-position: 40px 0;
+}
+dl.accordion dd dl dd dl dd.accordion_content {
+}
+/* @end */
+
+/* @group Ebene 4 */
+
+dl.accordion dd dl dd dl dd dl dt {
+	background-color: #7bc3e4;
+	background-position: 60px 0;
+}
+dl.accordion dd dl dd dl dd dl dd.accordion_content {
+}
+.accordion_content_1 {
+	padding:20px;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	text-align:justify;
+}
+
+/* @end */
+
+/* @end */
+
+
+/*google chat css*/
+iframe a {
+	color:#FFFFFF;
+}

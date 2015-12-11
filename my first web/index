@@ -1,0 +1,26 @@
+<html>
+<head>
+</head>
+<body>
+<h1>this is my first web page</h1>
+<p>
+this is all about my life!! things which i do in my life.
+</p>
+
+<ul>
+<li>learning</li>
+<li>developing programs</li>
+<li>travelling</li>
+<li>having fun</li>
+</ul>
+
+<h3>
+my favorite quotes
+</h3>
+<blockquote>
+<p>where ever you go leave a land mark</p>
+<p>dream it and work for it</p>
+</blockquote/>
+
+</body>
+</html>

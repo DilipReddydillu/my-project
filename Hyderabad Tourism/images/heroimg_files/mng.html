@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)https://static.cmptch.com/v/lib/mng.html?104#180#360 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    <title></title>
+    <script>
+        var WebStorageUtility = (function() {
+            var Config = {
+                taTimer: 180,
+                ntaTimer: 180,
+                ntvSliderTimer: 180,
+                ntvSlider: 180,
+                BRUID_KEY: 'pmbruid01',
+                UID_KEY: 'pmuid01'
+            }
+
+            var cookieHandler = (function() {
+                var getItem = function (sKey) {
+                    if(!sKey) {
+                        return null;
+                    }
+                    return decodeURIComponent(document.cookie.replace(new RegExp("(?:(?:^|.*;)\\s*" + encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1")) || null;
+                };
+                var setItem = function (sKey, sValue, vEnd, sPath, sDomain, bSecure) {
+                    if (!sKey || /^(?:expires|max\-age|path|domain|secure)$/i.test(sKey)) { return false; }
+                    var sExpires = "";
+                    if (vEnd) {
+                        switch (vEnd.constructor) {
+                            case Number:
+                                sExpires = vEnd === Infinity ? "; expires=Fri, 31 Dec 9999 23:59:59 GMT" : "; max-age=" + vEnd;
+                                break;
+                            case String:
+                                sExpires = "; expires=" + vEnd;
+                                break;
+                            case Date:
+                                sExpires = "; expires=" + vEnd.toUTCString();
+                                break;
+                        }
+                    }
+                    document.cookie = encodeURIComponent(sKey) + "=" + encodeURIComponent(sValue) + sExpires + (sDomain ? "; domain=" + sDomain : "") + (sPath ? "; path=" + sPath : "") + (bSecure ? "; secure" : "");
+                    return true;
+                };
+                var removeItem = function (sKey, sPath, sDomain) {
+                    if (!hasItem(sKey)) { return false; }
+                    document.cookie = encodeURIComponent(sKey) + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" + (sDomain ? "; domain=" + sDomain : "") + (sPath ? "; path=" + sPath : "");
+                    return true;
+                };
+                var hasItem = function (sKey) {
+                    if (!sKey) { return false; }
+                    return (new RegExp("(?:^|;\\s*)" + encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=")).test(document.cookie);
+                };
+                var keys = function () {
+                    var aKeys = document.cookie.replace(/((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, "").split(/\s*(?:\=[^;]*)?;\s*/);
+                    for (var nLen = aKeys.length, nIdx = 0; nIdx < nLen; nIdx++) { aKeys[nIdx] = decodeURIComponent(aKeys[nIdx]); }
+                    return aKeys;
+                };
+
+                // checks are cookies enabled from navigator object
+                // if that doesn't work, it creates a test cookie
+                var cookiesEnabled = function() {
+                    // Ovo u IE-9 vraca uvijek true?
+                    var cookieEnabled = (navigator.cookieEnabled) ? true : false;
+
+                    if(typeof navigator.cookieEnabled == 'undefined' && !cookieEnabled) {
+                        document.cookie = 'testcookie';
+                        cookieEnabled = (document.cookie.indexOf('testcookie') != -1) ? true : false;
+                        removeItem('testcookie');
+                    }
+                    return cookieEnabled;
+                };
+
+                return {
+                    get: getItem,
+                    set: setItem,
+                    remove: removeItem,
+                    hasItem: hasItem,
+                    keys: keys,
+                    isEnabled: cookiesEnabled
+                };
+            }());
+
+            var Messenger = (function() {
+                var init = function() {
+                    if(typeof document.addEventListener !== 'undefined') {
+                        window.addEventListener('message', messageHandler, false);
+                    } else {
+                        window.attachEvent('onmessage', messageHandler);
+                    }
+                }
+
+                var messageHandler = function(evt) {
+                    var params = evt.data.toString().split('#'),
+                        msg = params[0];
+
+                    switch (msg) {
+                        case 'GETPMSSCRPRM' :
+                            sendSSParams();
+                            break;
+                        case 'CLEARPMSSCRPRM' :
+                            StorageManager.remove('session', 'PMLPI');
+                            StorageManager.remove('session', 'PMLP_BRANDED');
+                            break;
+                        case 'SETPMSSBRANDED' :
+                            WindowNameManager.setIsBranded('1');
+                            break;
+                        case 'SETTRANSTIME' :
+                            TimersManager.set('TRANS_TIME');
+                            break;
+                        case 'SETDISPTIME' :
+                            TimersManager.set('DISP_TIME');
+                            break;
+                        case 'SETNTVSLIDE' :
+                            TimersManager.set('NTVSLIDER_TIME');
+                            break;
+                        case 'SETNTV' :
+                            TimersManager.set('NTV_TIME');
+                            break;
+                        case 'GETUID' :
+                            parent.postMessage('UIDRETVAL#' + UIDManager.getUidCookie() + '#' + UIDManager.getUidStorage(), '*');
+                            break;
+                        case 'SETUID' :
+                            UIDManager.setUID(params[1]);
+                            break;
+                        case 'SETUIDCOOKIE' :
+                            UIDManager.dropCookie(params[1], null);
+                            break;
+                        case 'SETUIDSTORAGE' :
+                            UIDManager.setStorage(Config.UID_KEY, params[1]);
+                            break;
+                    }
+                }
+
+                var send = function(msg) {
+                    parent.postMessage(msg, '*');
+                }
+
+                var sendSSParams = function() {
+                    var ssParams = WindowNameManager.getParam(),
+                        msg = 'PMSSCRPRM01#' + (ssParams !== null) ? ssParams + '#' + WindowNameManager.getIsBranded() : 'EMPTY';
+
+                    send(msg);
+                }
+
+                return {
+                    init: init,
+                    send: send
+                };
+            }());
+
+            var StorageManager = (function() {
+                var localEnabled = false,
+                    sessionEnabled = false;
+
+                var init = function() {
+                    localEnabled = isEnabled('local');
+                    sessionEnabled = isEnabled('session');
+                };
+
+                var get = function(mode, key) {
+                    if(mode === 'local') {
+                        if(localEnabled) {
+                            return localStorage.getItem(key);
+                        } else {
+                            return -1;
+                        }
+                    } else if(mode === 'session') {
+                        if(sessionEnabled) {
+                            return sessionStorage.getItem(key);
+                        } else {
+                            return -1;
+                        }
+                    }
+                }
+
+                var set = function(mode, key, value) {
+                    if(mode === 'local' && localEnabled) {
+                        localStorage.setItem(key, value);
+                    } else if(mode === 'session' && sessionEnabled) {
+                        sessionStorage.setItem(key, value);
+                    }
+                }
+
+                var remove = function(mode, key) {
+                    if(mode === 'local' && localEnabled) {
+                        localStorage.removeItem(key);
+                    } else if(mode === 'session' && sessionEnabled) {
+                        sessionStorage.removeItem(key);
+                    }
+                }
+
+                var isEnabled = function(mode) {
+                    var mod = 'TEST';
+                    try {
+                        if(mode === 'local') {
+                            localStorage.setItem(mod, mod);
+                            localStorage.removeItem(mod);
+                            return true;
+                        } else if(mode === 'session') {
+                            sessionStorage.setItem(mod, mod);
+                            sessionStorage.removeItem(mod);
+                            return true;
+                        }
+                    } catch (exception) {
+                        return false;
+                    }
+                };
+
+                var getLocalStatus = function() {
+                    return localEnabled;
+                }
+
+                var getSessionStatus = function() {
+                    return sessionEnabled;
+                }
+
+                return {
+                    get: get,
+                    set: set,
+                    remove: remove,
+                    localEnabled: getLocalStatus,
+                    sessionEnabled: getSessionStatus,
+                    init: init
+                };
+            }());
+
+            var WindowNameManager = (function() {
+                var ssParams = null,
+                    message = null,
+                    reportIntervalID = null,
+                    reportIntervalCounter = 0;
+
+                var init = function() {
+                    ssParams = StorageManager.get('session', 'PMLPI');
+                    message = 'PMSSCRPRM01#' + (ssParams !== null ? ssParams + '#' + getIsBranded() : 'EMPTY');
+
+                    reportIntervalID = window.setInterval(makeFunction(message), 50);
+                }
+
+                var makeFunction = function(message) {
+                    return function() {
+                        if(reportIntervalCounter > 60) {
+                            clearInterval(reportIntervalID);
+                        } else {
+                            Messenger.send(message);
+                            reportIntervalCounter++;
+                        }
+                    }
+                }
+
+                var getParam = function() {
+                    return ssParams;
+                };
+
+                var getIsBranded = function() {
+                    return StorageManager.get('session', 'PMLP_BRANDED');
+                };
+
+                var setIsBranded = function(status) {
+                    StorageManager.set('session', 'PMLP_BRANDED', status);
+                };
+
+                return {
+                    init: init,
+                    getParam: getParam,
+                    getIsBranded: getIsBranded,
+                    setIsBranded: setIsBranded
+                };
+            }());
+
+            var TimersManager = (function() {
+                //trans: 'TRANS_TIME',
+                //disp: 'DIPS_TIME',
+                //ntvSlider: 'NTVSLIDER_TIME',
+                //ntv: 'NTV_TIME'
+
+                var transCanShow = -1,
+                    dispCanShow = -1,
+                    ntvSliderCanShow = -1,
+                    ntvCanShow = -1,
+                    tempTrans = -1,
+                    tempDisp = -1,
+                    tempNtvSlider = -1,
+                    tempNtv = -1,
+                    changed = false;
+
+                    // not used - maybe remove it
+                var canShow = function(timerName, timer) {
+                    var timerValue = null;
+
+                    if(!StorageManager.localEnabled()) {
+                        return -1;
+                    }
+
+                    try {
+                        timerValue = StorageManager.get('local', timerName);
+
+                        if(timerValue === null) {
+                            return 1;
+                        } else if((Math.round(new Date().getTime()/1000) - timerValue) > timer) {
+                            removeTimer(timerName);
+                            return 1
+                        }
+
+                        return 0;
+                    } catch(ex) {
+                        return -1;
+                    }
+                }
+                var setTimer = function(timerName) {
+                    StorageManager.set('local', timerName, Math.round(new Date().getTime()/1000));
+                }
+                var removeTimer = function(timerName) {
+                    StorageManager.remove('local', timerName);
+                }
+                var getTimer = function(timerName) {
+                    return StorageManager.get('local', timerName);
+                }
+                var checkTimers = function() {
+                    tempTrans = canShow('TRANS_TIME', Config.taTimer);
+                    tempDisp = canShow('DISP_TIME', Config.ntaTimer);
+                    tempNtvSlider = canShow('NTVSLIDER_TIME', Config.ntvSliderTimer);
+                    tempNtv = canShow('NTV_TIME', Config.ntvSlider);
+                    changed = false;
+
+                    if(tempTrans !== -1 && transCanShow !== tempTrans) {
+                        changed = true;
+                        transCanShow = tempTrans;
+                    }
+
+                    if(tempDisp !== -1 && dispCanShow !== tempDisp) {
+                        changed = true;
+                        dispCanShow = tempDisp;
+                    }
+
+                    if(tempNtvSlider !== -1 && ntvSliderCanShow !== tempNtvSlider) {
+                        changed = true;
+                        ntvSliderCanShow = tempNtvSlider;
+                    }
+
+                    if(tempNtv !== -1 && ntvCanShow !== tempNtv) {
+                        changed = true;
+                        ntvCanShow = tempNtv;
+                    }
+
+                    if(changed) {
+                        Messenger.send('PMTIMERS#' + transCanShow + '#' + dispCanShow + '#' + ntvSliderCanShow + '#' + ntvCanShow);
+                    }
+                }
+
+                var init = function() {
+                    window.setInterval(checkTimers, 300);
+                }
+
+                return {
+                    canShow: canShow,
+                    set: setTimer,
+                    remove: removeTimer,
+                    init: init
+                };
+            }());
+
+            var UIDManager = (function() {
+                var bruidCookie = null,
+                    bruidStorage = null,
+                    uidCookie = null,
+                    uidStorage = null,
+                    runned = false;
+
+                var dropCookie = function(uidValue, bruidValue) {
+                    if(uidValue) {
+                        var img1 = new Image();
+                        img1.src = 'https://partners.cmptch.com/suic?u=' + uidValue;
+                    }
+                    if(bruidValue) {
+                        var img2 = new Image();
+                        img2.src = 'https://partners.cmptch.com/suic?b=' + bruidValue;
+                    }
+                };
+
+                var setStorage = function(key, browserId) {
+                    StorageManager.set('local', key, browserId);
+                };
+
+                var setUID = function(value) {
+                    StorageManager.set('local', Config.UID_KEY, value);
+                    dropCookie(value, null);
+                };
+
+                var getUidCookie = function() {
+                    return uidCookie;
+                };
+
+                var getUidStorage = function() {
+                    return uidStorage;
+                };
+
+                var run = function() {
+                    var tempUidCookie = null,
+                        tempUidStorage = null,
+                        reportIntervalID = null,
+                        reportIntervalCounter = 0;
+
+                    if(runned) {
+                        return;
+                    } else {
+                        runned = true;
+                    }
+
+                    if(cookieHandler.isEnabled()) {
+                        tempUidCookie = cookieHandler.get(Config.UID_KEY);
+
+                        if(cookieHandler.hasItem(Config.UID_KEY) && typeof tempUidCookie !== 'undefined' && tempUidCookie !== null) {
+                            uidCookie = tempUidCookie;
+                        }
+                    }
+
+                    if(StorageManager.localEnabled()) {
+                        tempUidStorage = StorageManager.get('local', Config.UID_KEY);
+
+                        if(typeof tempUidStorage !== 'undefined' && tempUidStorage !== null && tempUidStorage !== 'null') {
+                            uidStorage = tempUidStorage;
+                        }
+                    }
+
+                    reportIntervalID = window.setInterval(function() {
+                        if(reportIntervalCounter > 100) {
+                            clearInterval(reportIntervalID);
+                        } else {
+                            parent.postMessage('PMUIDVAL#' + uidCookie + '#' + uidStorage, '*');
+                            reportIntervalCounter++;
+                        }
+                    }, 50);
+                };
+
+                return {
+                    dropCookie: dropCookie,
+                    setStorage: setStorage,
+                    setUID: setUID,
+                    getUidCookie: getUidCookie,
+                    getUidStorage: getUidStorage,
+                    run: run
+                };
+            }());
+
+            var getConfigParams = function() {
+                var urlParams = document.location.href.split('#');
+
+                    Config.taTimer = parseInt(urlParams[1]);
+                    Config.ntaTimer = parseInt(urlParams[2]);
+            };
+
+            var init = function() {
+                getConfigParams();
+                StorageManager.init();
+                Messenger.init();
+                UIDManager.run();
+                WindowNameManager.init();
+                TimersManager.init();
+            }
+
+            return {
+                init: init
+            };
+        }()).init();
+    </script>
+<script onerror="this.parentNode.removeChild(this);" src="cr" type="text/javascript"></script><script onerror="this.parentNode.removeChild(this);" src="cr" type="text/javascript"></script></head>
+<body marginwidth="0" marginheight="0">
+</body></html>
